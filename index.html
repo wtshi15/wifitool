@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WT's WiFi Tool</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 320px;
+        }
+
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            flex-basis: 35%;
+            text-align: left;
+            color: #555;
+        }
+
+        .form-group input {
+            flex-basis: 60%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #007bff;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #downloadButton {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #qrcode {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #qrcode canvas {
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>WT's WiFi Tool</h1>
+
+        <!-- SSID (WiFi Name) Input -->
+        <div class="form-group">
+            <label for="ssidInput">SSID:</label>
+            <input type="text" id="ssidInput" placeholder="Enter WiFi name (SSID)" required>
+        </div>
+
+        <!-- Password Input -->
+        <div class="form-group">
+            <label for="passwordInput">Password:</label>
+            <input type="text" id="passwordInput" placeholder="Enter password" required>
+        </div>
+
+        <!-- Encryption Type Input -->
+        <div class="form-group">
+            <label for="encryptionInput">Encryption:</label>
+            <input type="text" id="encryptionInput" placeholder="WPA/WEP" required>
+        </div>
+
+        <!-- Hidden Network Checkbox -->
+        <div class="form-group">
+            <label for="hiddenInput">Hidden Network:</label>
+            <input type="checkbox" id="hiddenInput">
+        </div>
+
+        <!-- Create QR Button -->
+        <button onclick="generateQRCode()">Create</button>
+
+        <!-- QR Code Display -->
+        <div id="qrcode"></div>
+
+        <!-- Download Button -->
+        <button id="downloadButton" onclick="downloadQRCode()">Download PNG</button>
+    </div>
+
+    <!-- QR code generator library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        function generateQRCode() {
+            var ssid = document.getElementById("ssidInput").value;
+            var password = document.getElementById("passwordInput").value;
+            var encryption = document.getElementById("encryptionInput").value || "WPA";
+            var hidden = document.getElementById("hiddenInput").checked ? "true" : "false";
+            var qrCodeContainer = document.getElementById("qrcode");
+
+            // Clear previous QR code and hide download button
+            qrCodeContainer.innerHTML = "";
+            document.getElementById("downloadButton").style.display = "none";
+
+            // Validate required fields
+            if (!ssid.trim() || !password.trim()) {
+                alert("Please enter both SSID and password.");
+                return;
+            }
+
+            // Construct WiFi data
+            var wifiData = `WIFI:T:${encryption};S:${ssid};P:${password};H:${hidden};;`;
+
+            // Generate QR code
+            new QRCode(qrCodeContainer, {
+                text: wifiData,
+                width: 256,
+                height: 256
+            });
+
+            // Ensure QR code canvas stays centered
+            var qrCodeCanvas = qrCodeContainer.querySelector("canvas");
+            qrCodeCanvas.style.margin = "0 auto";
+
+            // Show download button
+            document.getElementById("downloadButton").style.display = "inline-block";
+        }
+
+        function downloadQRCode() {
+            var qrCodeCanvas = document.querySelector("#qrcode canvas");
+            var pngUrl = qrCodeCanvas.toDataURL("image/png");
+            var downloadLink = document.createElement("a");
+            downloadLink.href = pngUrl;
+            downloadLink.download = "wifi_qr_code.png";
+            downloadLink.click();
+        }
+    </script>
+</body>
+</html>
